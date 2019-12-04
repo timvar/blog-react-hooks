@@ -1,24 +1,40 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useReducer, useEffect } from 'react';
+import UserBar from './user/UserBar';
+import CreatePost from './post/CreatePost';
+import PostList from './post/PostList';
+import appReducer from './reducers';
+
+const defaultPosts = [
+  {
+    title: 'React Hooks',
+    content: 'The greatest thing since sliced bread!',
+    author: 'Daniel Bugl',
+  },
+  {
+    title: 'Using React Fragments',
+    content: 'Keeping the DOM tree clean!',
+    author: 'Daniel Bugl',
+  },
+];
 
 function App() {
+  const [state, dispatch] = useReducer(appReducer, {
+    user: '',
+    posts: defaultPosts,
+  });
+  const { user, posts } = state;
+  useEffect(() => {
+    document.title = user
+      ? `${user} - React Hooks Blog `
+      : 'React Hooks Blog';
+  }, [user]);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ padding: 8 }}>
+      <UserBar user={user} dispatch={dispatch} />
+      {user && (
+        <CreatePost user={user} posts={posts} dispatch={dispatch} />
+      )}
+      <PostList posts={posts} />
     </div>
   );
 }
