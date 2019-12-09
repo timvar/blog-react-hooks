@@ -1,7 +1,10 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { StateContext } from '../contexts';
 
-const CreatePost = ({ user, posts, dispatch }) => {
+const CreatePost = () => {
+  const { state, dispatch } = useContext(StateContext);
+  const { user } = state;
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const handleTitle = e => {
