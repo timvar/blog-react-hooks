@@ -1,5 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useState, useContext } from 'react';
+import { useResource } from 'react-request-hook';
+
 import { StateContext } from '../contexts';
 
 const CreatePost = () => {
@@ -7,6 +9,13 @@ const CreatePost = () => {
   const { user } = state;
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [, createPost] = useResource(
+    ({ title, content, author }) => ({
+      url: '/posts',
+      method: 'post',
+      data: { title, content, author },
+    }),
+  );
   const handleTitle = e => {
     setTitle(e.target.value);
   };
@@ -16,6 +25,7 @@ const CreatePost = () => {
 
   const handleCreate = e => {
     e.preventDefault();
+    createPost({ title, content, author: user });
     dispatch({ type: 'CREATE_POST', title, content, author: user });
   };
 

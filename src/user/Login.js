@@ -1,10 +1,31 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { useResource } from 'react-request-hook';
 import { StateContext } from '../contexts';
 
 const Login = () => {
   const { dispatch } = useContext(StateContext);
   const [username, setUsername] = useState('');
+  const [loginFailed, setLoginFailed] = useState(false);
+  const [password, setPassword] = useState('');
+  const [user, login] = useResource((username, password) => ({
+    url: `/login/${encodeURI(username)}/${encodeURI(password)}`,
+    method: 'get',
+  }));
+  useEffect(() => {
+    if (user && user.data) {
+      if (user.data.length > 0) {
+        setLoginFailed(false);
+        dispatch({ type: 'LOGIN', username: user.data[0].username });
+      } else {
+        setLoginFailed(true);
+      }
+    }
+    if (user && user.error) {
+      setLoginFailed(true);
+    }
+  }, [user]);
+
   const handlesubmit = e => {
     e.preventDefault();
     dispatch({ type: 'LOGIN', username });
@@ -12,9 +33,17 @@ const Login = () => {
   const handleUsername = e => {
     setUsername(e.target.value);
   };
+  function handlePassword(evt) {
+    setPassword(evt.target.value);
+  }
 
   return (
-    <form onSubmit={e => handlesubmit(e)}>
+    <form
+      onSubmit={e => {
+        e.preventDefault();
+        login(username, password);
+      }}
+    >
       <label htmlFor="login-username">Username:</label>
       <input
         type="text"
@@ -26,14 +55,21 @@ const Login = () => {
       <label htmlFor="login-password">Password:</label>
       <input
         type="password"
-        name="login-password"
-        id="login-password"
+        value={password}
+        onChange={handlePassword}
+        name="login-username"
+        id="login-username"
       />
       <input
         type="submit"
         value="Login"
         disabled={username.length === 0}
       />
+      {loginFailed && (
+        <span style={{ color: 'red' }}>
+          Invalid username or password
+        </span>
+      )}
     </form>
   );
 };
